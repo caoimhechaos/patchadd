@@ -29,7 +29,7 @@
 # ARISING IN ANY WAY OUT OF  THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# $patchadd: patch_add.sh,v 1.1.1.1 2008/08/10 10:59:57 caoimhe Exp $
+# $patchadd: patch_add.sh,v 1.2 2008/08/10 21:06:14 caoimhe Exp $
 #
 
 ## Basic definitions
@@ -225,12 +225,6 @@ for patch in ${PATCHES}
 		echo "Patch ${PATCHNAME} already installed." 1>&2
 		"${RM}" -fr "${TMPDIR}"
 		continue
-	fi
-
-	if [ "${patch}" != "${PATCHNAME}" ]
-	then
-		"${MV}" "${SPOOLDIR}/${patch}.tbz.sig" "${SPOOLDIR}/${PATCHNAME}.tbz.sig"
-		"${MV}" "${SPOOLDIR}/${patch}.tbz" "${SPOOLDIR}/${PATCHNAME}.tbz"
 	fi
 
 	while read BIN PATCH ORIGSUM NEWSUM
