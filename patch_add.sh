@@ -29,7 +29,7 @@
 # ARISING IN ANY WAY OUT OF  THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# $patchadd$
+# $patchadd: patch_add.sh,v 1.1.1.1 2008/08/10 10:59:57 caoimhe Exp $
 #
 
 ## Basic definitions
@@ -162,7 +162,7 @@ do
 
 	# Check if the patch is actually installed. In the C version, there
 	# will even be locking...
-	if [ -f "${DBDIR}/${PATCHNAME}/+CONTENTS" ]
+	if [ -f "${DBDIR}/${PATCHNAME}/+COMMENT" ]
 	then
 		echo "Patch ${PATCHNAME} already installed." 1>&2
 		"${RM}" -fr "${TMPDIR}"
@@ -220,7 +220,7 @@ for patch in ${PATCHES}
 
 	# Check if the patch is actually installed. In the C version, there
 	# will even be locking...
-	if [ -f "${DBDIR}/${PATCHNAME}/+CONTENTS" ]
+	if [ -f "${DBDIR}/${PATCHNAME}/+COMMENT" ]
 	then
 		echo "Patch ${PATCHNAME} already installed." 1>&2
 		"${RM}" -fr "${TMPDIR}"
@@ -260,7 +260,7 @@ for patch in ${PATCHES}
 	# Save information required to back out the patch.
 	[ "${BACKOUT}" = 1 ] && "${PAX}" -rw -pe "${TMPDIR}/." "${DBDIR}/${PATCHNAME}"
 	[ "${BACKOUT}" = 0 ] && "${MKDIR}" -p "${DBDIR}/${PATCHNAME}"
-	[ "${BACKOUT}" = 0 ] && "${CP}" "${TMPDIR}/+CONTENTS" "${DBDIR}/${PATCHNAME}"
+	[ "${BACKOUT}" = 0 ] && "${CP}" "${TMPDIR}/+COMMENT" "${DBDIR}/${PATCHNAME}"
 	"${RM}" -fr "${TMPDIR}"
 done
 
