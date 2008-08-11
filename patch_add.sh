@@ -254,7 +254,7 @@ do
 
 	# Save information required to back out the patch.
 	"${MKDIR}" -p "${DBDIR}/${PATCHNAME}"
-	[ "${BACKOUT}" = 1 ] && "${PAX}" -rw -pe "${TMPDIR}/." "${DBDIR}/${PATCHNAME}/."
+	[ "${BACKOUT}" = 1 ] && (cd "${TMPDIR}"; "${PAX}" -rw -pe . "${DBDIR}/${PATCHNAME}/.")
 	[ "${BACKOUT}" = 0 ] && "${CP}" "${TMPDIR}/+COMMENT" "${DBDIR}/${PATCHNAME}"
 	"${RM}" -fr "${TMPDIR}"
 done
