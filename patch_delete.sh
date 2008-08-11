@@ -29,7 +29,7 @@
 # ARISING IN ANY WAY OUT OF  THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# $patchadd$
+# $patchadd: patch_delete.sh,v 1.1 2008/08/10 22:03:01 tonnerre Exp $
 #
 
 ## Basic definitions
@@ -54,15 +54,15 @@ for patch in $@
 do
 	# Check if the patch is actually installed. In the C version, there
 	# will even be locking...
-	if [ ! -f "${DBDIR}/${PATCHNAME}/+COMMENT" ]
+	if [ ! -f "${DBDIR}/${patch}/+COMMENT" ]
 	then
-		echo "Patch ${PATCHNAME} is not installed." 1>&2
+		echo "Patch ${patch} is not installed." 1>&2
 		continue
 	fi
 
-	if [ ! -f "${DBDIR}/${PATCHNAME}/+CONTENTS" ]
+	if [ ! -f "${DBDIR}/${patch}/+CONTENTS" ]
 	then
-		echo "Patch ${PATCHNAME} does not contain backout information." 1>&2
+		echo "Patch ${patch} does not contain backout information." 1>&2
 		continue
 	fi
 
@@ -80,18 +80,17 @@ do
 		fi
 
 		LOCALFILE=`"${BASENAME}" "${BIN}"`
-		"${CP}" "${BIN}" "${DBDIR}/${PATCHNAME}/${LOCALFILE}.new"
-		"${BSPATCH}" "${DBDIR}/${PATCHNAME}/${LOCALFILE}.new" "${BIN}" "${DBDIR}/${PATCHNAME}/${PATCH}" || echo "Unapplying patch failed for ${BIN}" 1>&2
+		"${CP}" "${DBDIR}/${patch}/${LOCALFILE}.orig" "${BIN}" || echo "Unapplying patch failed for ${BIN}" 1>&2
 
 		if ! echo "SHA1 (${BIN}) = ${ORIGSUM}" | cksum -c
 		then
 			echo "Warning: File ${BIN} not in desired state after un-patch." 1>&2
 			continue
 		fi
-	done < "${DBDIR}/${PATCHNAME}/+CONTENTS"
+	done < "${DBDIR}/${patch}/+CONTENTS"
 
 	# Remove information required to back out the patch.
-	"${RM}" -fr "${DBDIR}/${PATCHNAME}"
+	"${RM}" -fr "${DBDIR}/${patch}"
 done
 
 exit 0
