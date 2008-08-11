@@ -29,7 +29,7 @@
 # ARISING IN ANY WAY OUT OF  THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# $patchadd: patch_add.sh,v 1.2 2008/08/10 21:06:14 caoimhe Exp $
+# $patchadd: patch_add.sh,v 1.3 2008/08/10 22:24:49 caoimhe Exp $
 #
 
 ## Basic definitions
@@ -124,16 +124,16 @@ do
 		continue
 	fi
 
-	TMPDIR=`mktemp -d -t /tmp/patchadd-XXXXXX`
+	TMPDIR=`mktemp -d -t patchadd-XXXXXX`
 	(cd "${TMPDIR}" && "${TAR}" jxpf "${SPOOLDIR}/${patch}.tbz")
 
 	# Now check the +INFO file so we don't install stupidities
-	PATCHABI=`grep ^ABI= +INFO | awk -F= '{ print $2 }'`
-	PATCHOS=`grep ^OS_VERSION= +INFO | awk -F= '{ print $2 }'`
-	PATCHARCH=`grep ^MACHINE_ARCH= +INFO | awk -F= '{ print $2 }'`
-	PATCHTOOLS=`grep ^PATCHTOOLS= +INFO | awk -F= '{ print $2 }'`
-	PATCHNAME=`grep ^NAME= +INFO | awk -F= '{ print $2 }'`
-	PATCHDEPS=`grep ^DEPENDS= +INFO | awk -F= '{ print $2 }'`
+	PATCHABI=`grep ^ABI= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHOS=`grep ^OS_VERSION= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHARCH=`grep ^MACHINE_ARCH= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHTOOLS=`grep ^PATCHTOOLS= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHNAME=`grep ^NAME= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHDEPS=`grep ^DEPENDS= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
 
 	if [ "${PATCHABI}" != "${OSABI}" ]
 	then
@@ -175,23 +175,24 @@ do
 		"${MV}" "${SPOOLDIR}/${patch}.tbz" "${SPOOLDIR}/${PATCHNAME}.tbz"
 	fi
 
-	PATCHES="${PATCHES} ${PATCHDEPS} ${PATCH}"
+	PATCHES="${PATCHES} ${PATCHDEPS} ${PATCHNAME}"
 	"${RM}" -fr "${TMPDIR}"
 done
 
 [ "${DOWNLOAD}" = 1 ] && exit 0
 
 for patch in ${PATCHES}
-	TMPDIR=`mktemp -d -t /tmp/patchadd-XXXXXX`
+do
+	TMPDIR=`mktemp -d -t patchadd-XXXXXX`
 	(cd "${TMPDIR}" && "${TAR}" jxpf "${SPOOLDIR}/${patch}.tbz")
 
 	# Now check the +INFO file so we don't install stupidities
-	PATCHABI=`grep ^ABI= +INFO | awk -F= '{ print $2 }'`
-	PATCHOS=`grep ^OS_VERSION= +INFO | awk -F= '{ print $2 }'`
-	PATCHARCH=`grep ^MACHINE_ARCH= +INFO | awk -F= '{ print $2 }'`
-	PATCHTOOLS=`grep ^PATCHTOOLS= +INFO | awk -F= '{ print $2 }'`
-	PATCHNAME=`grep ^NAME= +INFO | awk -F= '{ print $2 }'`
-	PATCHDEPS=`grep ^DEPENDS= +INFO | awk -F= '{ print $2 }'`
+	PATCHABI=`grep ^ABI= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHOS=`grep ^OS_VERSION= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHARCH=`grep ^MACHINE_ARCH= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHTOOLS=`grep ^PATCHTOOLS= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHNAME=`grep ^NAME= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHDEPS=`grep ^DEPENDS= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
 
 	if [ "${PATCHABI}" != "${OSABI}" ]
 	then
@@ -252,8 +253,8 @@ for patch in ${PATCHES}
 	done < "${TMPDIR}/+CONTENTS"
 
 	# Save information required to back out the patch.
-	[ "${BACKOUT}" = 1 ] && "${PAX}" -rw -pe "${TMPDIR}/." "${DBDIR}/${PATCHNAME}"
-	[ "${BACKOUT}" = 0 ] && "${MKDIR}" -p "${DBDIR}/${PATCHNAME}"
+	"${MKDIR}" -p "${DBDIR}/${PATCHNAME}"
+	[ "${BACKOUT}" = 1 ] && "${PAX}" -rw -pe "${TMPDIR}/." "${DBDIR}/${PATCHNAME}/."
 	[ "${BACKOUT}" = 0 ] && "${CP}" "${TMPDIR}/+COMMENT" "${DBDIR}/${PATCHNAME}"
 	"${RM}" -fr "${TMPDIR}"
 done
