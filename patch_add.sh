@@ -228,6 +228,24 @@ do
 		continue
 	fi
 
+	# We might not have all dependencies for some reason; sanity check
+	depfail=0
+	for dep in ${PATCHDEPS}
+	do
+		if [ ! -f "${DBDIR}/${dep}/+COMMENT" ]
+		then
+			echo "Patch ${PATCHNAME} already installed." 1>&2
+			"${RM}" -fr "${TMPDIR}"
+			depfail=1
+		fi
+	done
+
+	if [ "${depfail}" = 1 ]
+	then
+		echo "Aborting ${PATCHNAME} due to failed dependencies." 1>&2
+		continue
+	fi
+
 	while read BIN PATCH ORIGSUM NEWSUM
 	do
 		if ! echo "SHA1 (${BIN}) = ${ORIGSUM}" | cksum -c
