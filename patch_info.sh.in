@@ -29,7 +29,7 @@
 # ARISING IN ANY WAY OUT OF  THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# $patchadd: patch_delete.sh,v 1.1 2008/08/10 22:03:01 tonnerre Exp $
+# $patchadd$
 #
 
 ## Basic definitions
@@ -37,11 +37,8 @@
 PREFIX="/usr/pkg"
 LOCALSTATEDIR="/var"
 DBDIR="${LOCALSTATEDIR}/db/patches"
-BSPATCH="/usr/pkg/bin/bspatch"
-BASENAME="/usr/bin/basename"
-CP="/bin/cp"
-MV="/bin/mv"
-RM="/bin/rm"
+BASENAME="@BASENAME@"
+AWK="@AWK@"
 
 ## Actual code
 
@@ -50,61 +47,51 @@ usage() {
 	exit 1
 }
 
-for patch in $@
-do
-	# Check if the patch is actually installed. In the C version, there
-	# will even be locking...
-	if [ ! -f "${DBDIR}/${patch}/+COMMENT" ]
-	then
-		echo "Patch ${patch} is not installed." 1>&2
-		continue
-	fi
-
-	if [ ! -f "${DBDIR}/${patch}/+CONTENTS" ]
-	then
-		echo "Patch ${patch} does not contain backout information." 1>&2
-		continue
-	fi
-
-	if [ -f "${DBDIR}/${patch}/+DEPENDED_ON_BY" ] && [ -s "${DBDIR}/${patch}/+DEPENDED_ON_BY" ]
-	then
-		echo "Other patches still depend on ${patch}, not removing." 1>&2
-		continue
-	fi
-
-	for dep in `cat "${DBDIR}/${patch}/+DEPENDS"`
+if [ -z "$@" ]
+then
+	for patch in ${DBDIR}/*
 	do
-		newdepby=`mktemp -t patchdel-XXXXXX`
-
-		grep -v "^${patch}\$" "${DBDIR}/${dep}/+DEPENDED_ON_BY" > "${newdepby}"
-		mv "${newdepby}" "${DBDIR}/${patch}/+DEPENDED_ON_BY"
-	done
-
-	while read BIN PATCH ORIGSUM NEWSUM
-	do
-		if ! echo "SHA1 (${BIN}) = ${NEWSUM}" | cksum -c
+		[ -d "${patch}" ] || continue
+		if [ -f "${patch}/+INFO" ]
 		then
-			if echo "SHA1 (${BIN}) = ${ORIGSUM}" | cksum -c
-			then
-				echo "Warning: File ${BIN} already patched, skipping..." 1>&2
-				continue
-			fi
-
-			echo "Warning: File ${BIN} not in requested state." 1>&2
+			COMMENT=`"${AWK}" -F= '/^COMMENT=/ { print $2 }' "${patch}/+INFO"`
+			NAME=`"${AWK}" -F= '/^NAME=/ { print $2 }' "${patch}/+INFO"`
+			echo "${NAME}	${COMMENT}"
+		else
+			NAME=`"${BASENAME}" "${patch}"`
+			echo "${NAME}	(no information available)"
 		fi
-
-		LOCALFILE=`"${BASENAME}" "${BIN}"`
-		"${CP}" "${DBDIR}/${patch}/${LOCALFILE}.orig" "${BIN}" || echo "Unapplying patch failed for ${BIN}" 1>&2
-
-		if ! echo "SHA1 (${BIN}) = ${ORIGSUM}" | cksum -c
+	done
+else
+	for patch in $@
+	do
+		# Check if the patch is actually installed. In the C version,
+		# there will even be locking...
+		if [ ! -f "${DBDIR}/${patch}/+COMMENT" ]
 		then
-			echo "Warning: File ${BIN} not in desired state after un-patch." 1>&2
+			echo "Patch ${patch} is not installed." 1>&2
 			continue
 		fi
-	done < "${DBDIR}/${patch}/+CONTENTS"
 
-	# Remove information required to back out the patch.
-	"${RM}" -fr "${DBDIR}/${patch}"
-done
+		echo "Information for ${patch}:"
+		echo
+		echo "Comment:"
+		cat "${DBDIR}/${patch}/+COMMENT"
+
+		if [ ! -f "${DBDIR}/${patch}/+CONTENTS" ]
+		then
+			echo "Warning: Patch ${patch} does not contain backout information." 1>&2
+			continue
+		fi
+
+		echo
+		echo "Short comment:"
+		"${AWK}" -F= '/^COMMENT=/ { print $2 }' "${DBDIR}/${patch}/+INFO"
+		echo
+		echo "Files:"
+		echo
+		"${AWK}" '{ print $1 }' "${DBDIR}/${patch}/+CONTENTS"
+	done
+fi
 
 exit 0
