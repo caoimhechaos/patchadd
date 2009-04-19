@@ -78,11 +78,12 @@ then
 	AC_ERROR([pax is required.])
 fi
 
-AC_PATH_PROG([MKDIR], [mkdir], [])
-if test x"$MKDIR" = x
+AC_PATH_PROG([CMD_MKDIR], [mkdir], [])
+if test x"$CMD_MKDIR" = x
 then
 	AC_ERROR([mkdir is required.])
 fi
+AC_SUBST(CMD_MKDIR)
 
 AC_CONFIG_FILES([Makefile patch_add patch_delete patch_info])
 AC_OUTPUT
