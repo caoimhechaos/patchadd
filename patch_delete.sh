@@ -66,6 +66,20 @@ do
 		continue
 	fi
 
+	if [ -f "${DBDIR}/${patch}/+DEPENDED_ON_BY" ] && [ -s "${DBDIR}/${patch}/+DEPENDED_ON_BY" ]
+	then
+		echo "Other patches still depend on ${patch}, not removing." 1>&2
+		continue
+	fi
+
+	for dep in `cat "${DBDIR}/${patch}/+DEPENDS"`
+	do
+		newdepby=`mktemp -t patchdel-XXXXXX`
+
+		grep -v "^${patch}\$" "${DBDIR}/${dep}/+DEPENDED_ON_BY" > "${newdepby}"
+		mv "${newdepby}" "${DBDIR}/${patch}/+DEPENDED_ON_BY"
+	done
+
 	while read BIN PATCH ORIGSUM NEWSUM
 	do
 		if ! echo "SHA1 (${BIN}) = ${NEWSUM}" | cksum -c
