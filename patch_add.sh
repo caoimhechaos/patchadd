@@ -288,6 +288,13 @@ do
 	"${MKDIR}" -p "${DBDIR}/${PATCHNAME}"
 	[ "${BACKOUT}" = 1 ] && (cd "${TMPDIR}"; "${PAX}" -rw -pe . "${DBDIR}/${PATCHNAME}/.")
 	[ "${BACKOUT}" = 0 ] && "${CP}" "${TMPDIR}/+COMMENT" "${DBDIR}/${PATCHNAME}"
+
+	# Update depended-on-by
+	for dep in ${PATCHDEPS}
+	do
+		(echo "${PATCHNAME}"; test -f "${DBDIR}/${dep}/+DEPENDED_ON_BY" && cat "${DBDIR}/${dep}/+DEPENDED_ON_BY") | sort -u > "${DBDIR}/${dep}/+DEPENDED_ON_BY"
+	done
+
 	"${RM}" -fr "${TMPDIR}"
 done
 
