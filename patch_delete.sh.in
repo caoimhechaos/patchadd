@@ -37,11 +37,11 @@
 PREFIX="/usr/pkg"
 LOCALSTATEDIR="/var"
 DBDIR="${LOCALSTATEDIR}/db/patches"
-BSPATCH="/usr/pkg/bin/bspatch"
-BASENAME="/usr/bin/basename"
-CP="/bin/cp"
-MV="/bin/mv"
-RM="/bin/rm"
+BSPATCH="@BSPATCH@"
+BASENAME="@BASENAME@"
+CP="@CP@"
+MV="@MV@"
+RM="@RM@"
 
 ## Actual code
 

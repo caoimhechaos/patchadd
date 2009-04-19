@@ -37,7 +37,8 @@
 PREFIX="/usr/pkg"
 LOCALSTATEDIR="/var"
 DBDIR="${LOCALSTATEDIR}/db/patches"
-BASENAME="/usr/bin/basename"
+BASENAME="@BASENAME@"
+AWK="@AWK@"
 
 ## Actual code
 
@@ -53,8 +54,8 @@ then
 		[ -d "${patch}" ] || continue
 		if [ -f "${patch}/+INFO" ]
 		then
-			COMMENT=`awk -F= '/^COMMENT=/ { print $2 }' "${patch}/+INFO"`
-			NAME=`awk -F= '/^NAME=/ { print $2 }' "${patch}/+INFO"`
+			COMMENT=`"${AWK}" -F= '/^COMMENT=/ { print $2 }' "${patch}/+INFO"`
+			NAME=`"${AWK}" -F= '/^NAME=/ { print $2 }' "${patch}/+INFO"`
 			echo "${NAME}	${COMMENT}"
 		else
 			NAME=`"${BASENAME}" "${patch}"`
@@ -85,11 +86,11 @@ else
 
 		echo
 		echo "Short comment:"
-		awk -F= '/^COMMENT=/ { print $2 }' "${DBDIR}/${patch}/+INFO"
+		"${AWK}" -F= '/^COMMENT=/ { print $2 }' "${DBDIR}/${patch}/+INFO"
 		echo
 		echo "Files:"
 		echo
-		awk '{ print $1 }' "${DBDIR}/${patch}/+CONTENTS"
+		"${AWK}" '{ print $1 }' "${DBDIR}/${patch}/+CONTENTS"
 	done
 fi
 
