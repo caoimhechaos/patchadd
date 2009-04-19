@@ -53,7 +53,7 @@ CP="@CP@"
 MV="@MV@"
 RM="@RM@"
 PAX="@PAX@"
-MKDIR="@MKDIR@"
+MKDIR="@CMD_MKDIR@"
 AWK="@AWK@"
 
 exitcode=0
