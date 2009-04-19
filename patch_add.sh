@@ -155,7 +155,7 @@ do
 	fi
 	if [ "${PATCHTOOLS}" != "0.1" ]
 	then
-		echo "Patch tools version mismatch: 0.1, should be ${PATCHTOOLS}." 1>&2
+		echo "Patch tools version mismatch: ${PATCHTOOLS}, should be 0.1." 1>&2
 		[ "${FORCE}" = 1 ] || "${RM}" -fr "${TMPDIR}"
 		[ "${FORCE}" = 1 ] || continue
 	fi
