@@ -84,5 +84,5 @@ then
 	AC_ERROR([mkdir is required.])
 fi
 
-AC_CONFIG_FILES([Makefile patch_add.sh patch_delete.sh patch_info.sh])
+AC_CONFIG_FILES([Makefile patch_add patch_delete patch_info])
 AC_OUTPUT
