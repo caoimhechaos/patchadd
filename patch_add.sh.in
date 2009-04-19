@@ -34,24 +34,27 @@
 
 ## Basic definitions
 
-PREFIX="/usr/pkg"
-LOCALSTATEDIR="/var"
+# Hack for autoconf to Get It Right[TM].
+prefix="@prefix@"
+PREFIX="${prefix}"
+LOCALSTATEDIR="@localstatedir@"
 DBDIR="${LOCALSTATEDIR}/db/patches"
 SPOOLDIR="${LOCALSTATEDIR}/spool/patches"
 ARCH=`uname -m`
 VERS=`uname -r`
 PATCHSITE="ftp://ftp.netbsd.org/pub/NetBSD/misc/tonnerre/binpatches/${ARCH}/${VERS}"
-FETCH="/usr/bin/ftp"
-OPENSSL="/usr/bin/openssl"
-TAR="/bin/tar"
+FETCH="@FETCH@"
+OPENSSL="@OPENSSL@"
+TAR="@TAR@"
 OSABI=`uname -s`
-BSPATCH="/usr/pkg/bin/bspatch"
-BASENAME="/usr/bin/basename"
-CP="/bin/cp"
-MV="/bin/mv"
-RM="/bin/rm"
-PAX="/bin/pax"
-MKDIR="/bin/mkdir"
+BSPATCH="@BSPATCH@"
+BASENAME="@BASENAME@"
+CP="@CP@"
+MV="@MV@"
+RM="@RM@"
+PAX="@PAX@"
+MKDIR="@MKDIR@"
+AWK="@AWK@"
 
 exitcode=0
 
@@ -131,12 +134,12 @@ do
 	(cd "${TMPDIR}" && "${TAR}" jxpf "${SPOOLDIR}/${patch}.tbz")
 
 	# Now check the +INFO file so we don't install stupidities
-	PATCHABI=`grep ^ABI= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
-	PATCHOS=`grep ^OS_VERSION= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
-	PATCHARCH=`grep ^MACHINE_ARCH= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
-	PATCHTOOLS=`grep ^PATCHTOOLS= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
-	PATCHNAME=`grep ^NAME= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
-	PATCHDEPS=`grep ^DEPENDS= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHABI=`grep ^ABI= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
+	PATCHOS=`grep ^OS_VERSION= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
+	PATCHARCH=`grep ^MACHINE_ARCH= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
+	PATCHTOOLS=`grep ^PATCHTOOLS= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
+	PATCHNAME=`grep ^NAME= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
+	PATCHDEPS=`grep ^DEPENDS= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
 
 	if [ "${PATCHABI}" != "${OSABI}" ]
 	then
@@ -195,12 +198,12 @@ do
 	(cd "${TMPDIR}" && "${TAR}" jxpf "${SPOOLDIR}/${patch}.tbz")
 
 	# Now check the +INFO file so we don't install stupidities
-	PATCHABI=`grep ^ABI= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
-	PATCHOS=`grep ^OS_VERSION= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
-	PATCHARCH=`grep ^MACHINE_ARCH= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
-	PATCHTOOLS=`grep ^PATCHTOOLS= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
-	PATCHNAME=`grep ^NAME= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
-	PATCHDEPS=`grep ^DEPENDS= "${TMPDIR}/+INFO" | awk -F= '{ print $2 }'`
+	PATCHABI=`grep ^ABI= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
+	PATCHOS=`grep ^OS_VERSION= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
+	PATCHARCH=`grep ^MACHINE_ARCH= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
+	PATCHTOOLS=`grep ^PATCHTOOLS= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
+	PATCHNAME=`grep ^NAME= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
+	PATCHDEPS=`grep ^DEPENDS= "${TMPDIR}/+INFO" | "${AWK}" -F= '{ print $2 }'`
 
 	if [ "${PATCHABI}" != "${OSABI}" ]
 	then
