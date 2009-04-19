@@ -1,1 +1,1 @@
-bin_SCRIPTS=	patch_add.sh patch_delete.sh patch_info.sh
+bin_SCRIPTS=	patch_add patch_delete patch_info
