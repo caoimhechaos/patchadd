@@ -288,6 +288,7 @@ do
 	"${MKDIR}" -p "${DBDIR}/${PATCHNAME}"
 	[ "${BACKOUT}" = 1 ] && (cd "${TMPDIR}"; "${PAX}" -rw -pe . "${DBDIR}/${PATCHNAME}/.")
 	[ "${BACKOUT}" = 0 ] && "${CP}" "${TMPDIR}/+COMMENT" "${DBDIR}/${PATCHNAME}"
+	[ "${BACKOUT}" = 0 ] && "${CP}" "${TMPDIR}/+DEPENDS" "${DBDIR}/${PATCHNAME}"
 
 	# Update depended-on-by
 	for dep in ${PATCHDEPS}
