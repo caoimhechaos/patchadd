@@ -53,6 +53,8 @@ RM="/bin/rm"
 PAX="/bin/pax"
 MKDIR="/bin/mkdir"
 
+exitcode=0
+
 ## Actual code
 
 usage() {
@@ -115,6 +117,7 @@ do
 		"${DBDIR}/testkey.pem" -noverify >> /dev/null
 	then
 		echo "Unable to fetch ${patch}" 1>&2
+		exitcode=1
 		continue
 	fi
 
@@ -138,24 +141,28 @@ do
 	if [ "${PATCHABI}" != "${OSABI}" ]
 	then
 		echo "Patch ABI mismatch: ${OSABI}, should be ${PATCHABI}." 1>&2
+		exitcode=1
 		[ "${FORCE}" = 1 ] || "${RM}" -fr "${TMPDIR}"
 		[ "${FORCE}" = 1 ] || continue
 	fi
 	if [ "${PATCHOS}" != "${VERS}" ]
 	then
 		echo "Patch OS version mismatch: ${VERS}, should be ${PATCHOS}." 1>&2
+		exitcode=1
 		[ "${FORCE}" = 1 ] || "${RM}" -fr "${TMPDIR}"
 		[ "${FORCE}" = 1 ] || continue
 	fi
 	if [ "${PATCHARCH}" != "${ARCH}" ]
 	then
 		echo "Patch OS version mismatch: ${ARCH}, should be ${PATCHARCH}." 1>&2
+		exitcode=1
 		[ "${FORCE}" = 1 ] || "${RM}" -fr "${TMPDIR}"
 		[ "${FORCE}" = 1 ] || continue
 	fi
 	if [ "${PATCHTOOLS}" != "0.1" ]
 	then
 		echo "Patch tools version mismatch: ${PATCHTOOLS}, should be 0.1." 1>&2
+		exitcode=1
 		[ "${FORCE}" = 1 ] || "${RM}" -fr "${TMPDIR}"
 		[ "${FORCE}" = 1 ] || continue
 	fi
@@ -166,6 +173,7 @@ do
 	then
 		echo "Patch ${PATCHNAME} already installed." 1>&2
 		"${RM}" -fr "${TMPDIR}"
+		exitcode=1
 		continue
 	fi
 
@@ -179,7 +187,7 @@ do
 	"${RM}" -fr "${TMPDIR}"
 done
 
-[ "${DOWNLOAD}" = 1 ] && exit 0
+[ "${DOWNLOAD}" = 1 ] && exit $exitcode
 
 for patch in ${PATCHES}
 do
@@ -197,24 +205,28 @@ do
 	if [ "${PATCHABI}" != "${OSABI}" ]
 	then
 		echo "Patch ABI mismatch: ${OSABI}, should be ${PATCHABI}." 1>&2
+		exitcode=1
 		[ "${FORCE}" = 1 ] || "${RM}" -fr "${TMPDIR}"
 		[ "${FORCE}" = 1 ] || continue
 	fi
 	if [ "${PATCHOS}" != "${VERS}" ]
 	then
 		echo "Patch OS version mismatch: ${VERS}, should be ${PATCHOS}." 1>&2
+		exitcode=1
 		[ "${FORCE}" = 1 ] || "${RM}" -fr "${TMPDIR}"
 		[ "${FORCE}" = 1 ] || continue
 	fi
 	if [ "${PATCHARCH}" != "${ARCH}" ]
 	then
 		echo "Patch OS version mismatch: ${ARCH}, should be ${PATCHARCH}." 1>&2
+		exitcode=1
 		[ "${FORCE}" = 1 ] || "${RM}" -fr "${TMPDIR}"
 		[ "${FORCE}" = 1 ] || continue
 	fi
 	if [ "${PATCHTOOLS}" != "0.1" ]
 	then
 		echo "Patch tools version mismatch: 0.1, should be ${PATCHTOOLS}." 1>&2
+		exitcode=1
 		[ "${FORCE}" = 1 ] || "${RM}" -fr "${TMPDIR}"
 		[ "${FORCE}" = 1 ] || continue
 	fi
@@ -243,6 +255,7 @@ do
 	if [ "${depfail}" = 1 ]
 	then
 		echo "Aborting ${PATCHNAME} due to failed dependencies." 1>&2
+		exitcode=1
 		continue
 	fi
 
@@ -266,6 +279,7 @@ do
 		if ! echo "SHA1 (${BIN}) = ${NEWSUM}" | cksum -c
 		then
 			echo "Warning: File ${BIN} not in desired state after patch." 1>&2
+			exitcode=2
 			continue
 		fi
 	done < "${TMPDIR}/+CONTENTS"
@@ -277,4 +291,4 @@ do
 	"${RM}" -fr "${TMPDIR}"
 done
 
-exit 0
+exit $exitcode
