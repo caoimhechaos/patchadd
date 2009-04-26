@@ -4,10 +4,15 @@
 AC_PREREQ([2.63])
 AC_INIT([patchadd], [0.01-durchstich], [tonnerre@NetBSD.org])
 AM_INIT_AUTOMAKE(patchadd, 0.1-durchstich)
+AC_CONFIG_SRCDIR([fetchpatchlist.c])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
+AC_PROG_CC
 AC_PROG_AWK
 AC_PROG_INSTALL
+AC_PROG_LEX
+AC_PROG_YACC
 AC_PATH_PROG([FTP], [ftp], [])
 AC_PATH_PROG([WGET], [wget], [])
 AC_PATH_PROG([CURL], [curl], [])
@@ -84,6 +89,20 @@ then
 	AC_ERROR([mkdir is required.])
 fi
 AC_SUBST(CMD_MKDIR)
+
+# Checks for libraries.
+AC_SEARCH_LIBS([db_create], [db-4 db4 db])
+AC_SEARCH_LIBS([fetchGet], [fetch])
+AC_CHECK_LIB([l], [main], [LIBS="$LIBS -ll"])
+AC_CHECK_LIB([y], [main], [LIBS="$LIBS -ly"])
+
+# Checks for header files.
+AC_CHECK_HEADERS([limits.h stdlib.h unistd.h fetch.h db4/db4.h db4/db.h db4.h db.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+AC_CHECK_FUNCS([getcwd uname])
 
 AC_CONFIG_FILES([Makefile patch_add patch_delete patch_info])
 AC_OUTPUT
