@@ -1,0 +1,99 @@
+The tools
+=========
+
+The tools, which have been added to pkgsrc/sysutils/patchadd recently,
+consist of the following tools:
+
+ - patch_add, a tool to apply binary patches,
+ - patch_delete, a tool to back out a patch added without -r, and
+ - patch_info, a tool to display the list of installed patches.
+
+Still missing are the tools:
+
+ - patch_tool, a tool to figure out which patches still need to be
+   applied, and optionally install them, and
+ - mkpatchdir, a tool to generate a directory index in a directory full
+   of patches.
+ - Potentially even a tool to generate patch sets from two directories
+   or such.
+
+I'm working on them and I'm consequently going to rewrite the other
+tools. Until then, use the existing tools. The future tools will be
+compatible with the current file format. (And syntax.)
+
+The patch format
+================
+
+The second important part about patchadd is how to create a binary
+patch set to be applied. The format basically follows the instructions
+laid down in http://github.com/caoimhechaos/patchadd-tests/
+
+The patch file itself is basically a tar file. The file contains:
+
+ - Arbitrarily named bsdiff(1) patches lifting the file from old to new.
+ - A file called +INFO, containing pure metadata about the patch one
+   information per line, such as:
+   * ABI: the OS ABI (e.g. ABI=NetBSD)
+   * OS_VERSION: the OS version (e.g. OS_VERSION=5.0)
+   * MACHINE_ARCH: the machine architecture (e.g. MACHINE_ARCH=vax)
+   * PATCHTOOLS: the file format version (e.g. PATCHTOOLS=0.1)
+   * NAME: The name of the patch, frequently the file name. A form for
+     this would have to be agreed on; I would suggest the pullup
+     request ID (e.g. NAME=4123). Can be free form though, and does not
+     have to be the same as the file name.
+   * VERSION: The version of the patch. A patch can be re-released in a
+     new version if appropriate, and would be suggested as an upgrade
+     by patch_tool.
+   * COMMENT: A punchline describing the text. This should be a short
+     description which is shown in patch_infos overview output.
+   * DEPENDS: The name of a different patch file to depend on. This
+     line may appear as many times as required, but please only add one
+     dependent patch per line.
+   * CONFLICTS: The name of a different patch which cannot coexist with
+     this patch. The same rules as for DEPENDS apply.
+ - A file called +COMMENT containing a longer description (optional).
+ - A file called +CONTENTS, containing information about each contained
+   binary diff (one line per file, tab separated):
+   * The name of the file in the system to be patched, e.g. /bin/ksh
+   * The name of the patch file in the diff, free form file name
+   * The SHA-1 sum the file is expected to be in before patching, and
+   * the SHA-1 sum the file is supposed to have after patching.
+
+The tar file is not distributed as-is but as a bzip2 compressed OpenSSL
+binary file (.tbz) with detached signature (.tbz.sig). The command
+
+ openssl smime -sign -binary -outform PEM -signer signingkey.pem -in
+    patchname.tbz -out patchname.tbz.sig
+
+shall be used to produce the detached signature.
+
+The patch index
+===============
+
+The patches shall be kept in a directory called
+ftp://ftp.netbsd.org/${path}/${arch}/${vers}/, e.g. 
+ftp://ftp.netbsd.org/pub/NetBSD/misc/tonnerre/binpatches/amd64/5.0/
+
+The directory shall contain a file named patchindex. This file starts
+with a version statement:
+
+Version 0.1
+
+to indicate that the patch file format version 0.1 is used. This
+statement is followed by a list of all patch metadata for each patch,
+starting with the Patch keyword and ending with the EndPatch keyword.
+Multiple consecutive words in a value have to be quoted. For example:
+
+Patch 4123
+ABI=NetBSD
+OS_VERSION=4.0
+[...]
+COMMENT="A patch to add a funny hat to stargazer"
+EndPatch
+
+The patch index is then amended with an OpenSSL s/mime inline text
+signature executed with the patch signing key.
+
+This index file is used solely for the patch_tool utility. Even without
+this patch index, people can still safely run patch_add 4123 to add the
+patch.
