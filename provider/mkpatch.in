@@ -73,7 +73,7 @@ usage() {
 	exit 1
 }
 
-args=`getopt o:p:m:r: $*`
+args=`getopt o:p:k:s:m:r: $*`
 [ $? -eq 0 ] || usage
 
 set -- $args
