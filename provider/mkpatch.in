@@ -55,12 +55,9 @@ exitcode=0
 ## Actual code
 
 usage() {
-	echo "$0 [-o <old-dir>|-p <plist-file>] [-m <machine-arch>]" 1>&2
-	echo "        [-r <release>] [-k <keyfile>] <builddir> <pullup-id>" 1>&2
+	echo "$0 [-p <plist-file>] [-m <machine-arch>] [-r <release>]" 1>&2
+	echo "        [-k <keyfile>] <olddir> <builddir> <pullup-id>" 1>&2
 	echo 1>&2
-	echo "    -o old-dir" 1>&2
-	echo "        Directory containing the previous build, to generate" 1>&2
-	echo "        a plist from." 1>&2
 	echo "    -p plist-file" 1>&2
 	echo "        PLIST file containing a list of files to diff." 1>&2
 	echo "    -k keyfile" 1>&2
@@ -74,22 +71,17 @@ usage() {
 	exit 1
 }
 
-args=`getopt o:p:k:s:m:r: $*`
+args=`getopt p:k:s:m:r: $*`
 [ $? -eq 0 ] || usage
 
 set -- $args
 
 PLIST=''
-ORIGDIR=''
 KEYFILE=''
 
 while [ $# -gt 0 ]
 do
 	case "$1" in
-		-o)
-			ORIGDIR="$2"
-			shift
-			;;
 		-p)
 			PLIST="$2"
 			shift
@@ -117,7 +109,7 @@ do
 	shift
 done
 
-if [ "$#" -lt 2 ]
+if [ "$#" -lt 3 ]
 then
 	echo "Too few arguments." 1>&2
 	usage
@@ -126,9 +118,10 @@ fi
 OSMAJ=`echo "${OSVERS}" | awk -F. '{ print $1 }'`
 OSFULL=`echo "${OSVERS}" | awk -F_ '{ print $1 }'`
 PULLUP_TRACKER=`echo "${PULLUP_TRACKER_BASE}" | sed -e"s@{}@${OSMAJ}@g"`
-BUILDDIR="$1"
-PULLUP="$2"
-shift; shift
+ORIGDIR="$1"
+BUILDDIR="$2"
+PULLUP="$3"
+shift; shift; shift
 
 if [ -z "${KEYFILE}" ]
 then
@@ -138,12 +131,6 @@ fi
 if [ ! -f "${KEYFILE}" ]
 then
 	echo "Key file ${KEYFILE} not found." 1>&2
-	usage
-fi
-
-if [ -z "${ORIGDIR}" ]
-then
-	echo "The -o flag is required." 1>&2
 	usage
 fi
 
