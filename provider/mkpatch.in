@@ -41,6 +41,7 @@ OSVERS=`uname -r`
 OSARCH=`uname -m`
 BSPATCH="@BSPATCH@"
 BASENAME="@BASENAME@"
+BSDIFF="@BSDIFF@"
 CP="@CP@"
 MV="@MV@"
 RM="@RM@"
@@ -133,7 +134,7 @@ then
 	KEYFILE="/etc/openssl/private/${OSABI}.pem"
 fi
 
-if [ -f "${KEYFILE}" ]
+if [ ! -f "${KEYFILE}" ]
 then
 	echo "Key file ${KEYFILE} not found." 1>&2
 	usage
@@ -151,7 +152,7 @@ then
 	exit 23
 fi
 
-WRKDIR=`mktemp -d -t mkpatch-XXXXXX`
+WRKDIR=`mktemp -d /tmp/mkpatch-XXXXXX`
 OUTDIR=`pwd`
 
 cat << EOT > "${WRKDIR}/+INFO"
@@ -167,7 +168,7 @@ cat << EOT > "${WRKDIR}/+COMMENT"
 Dummy text for pullup ${PULLUP}
 EOT
 
-while read file < "${PLIST}"
+(while read file
 do
 	PFILE=`echo "${file}" | tr '/' '_' | sed -e's/^_//'`
 	OSUM=`sha1 -n "${ORIGDIR}/${file}" | awk '{ print $1 }'`
@@ -177,7 +178,7 @@ do
 		"${WRKDIR}/${PFILE}"
 	echo "${file}" "${PFILE}" "${OSUM}" "${NSUM}" "${OSUM}" >>	\
 		"${WRKDIR}/+CONTENTS"
-done
+done) < "${PLIST}"
 
 (cd "${WRKDIR}"; "${TAR}" cjvf "${OUTDIR}/${OSFULL}-${PULLUP}.tbz" *)
 "${OPENSSL}" smime -sign -binary -outform PEM -signer "${KEYFILE}"	\
