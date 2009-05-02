@@ -141,16 +141,17 @@ then
 	usage
 fi
 
-if [ -z "${ORIGDIR}" ] && [ -z "${PLIST}" ]
+if [ -z "${ORIGDIR}" ]
 then
-	echo "Either -p or -o is required." 1>&2
+	echo "The -o flag is required." 1>&2
 	usage
 fi
 
 if [ -z "${PLIST}" ]
 then
-	echo "PLIST creation not supported yet. Sorry. :-/" 1>&2
-	exit 23
+	PLIST=`mktemp /tmp/mkpatch-XXXXXX`
+	diff -rq "${ORIGDIR}" "${BUILDDIR}" | sed -e's/^Files //g'	\
+		-e's@ and .* differ$@@g' -e"s@${ORIGDIR}@@g" > "${PLIST}"
 fi
 
 WRKDIR=`mktemp -d /tmp/mkpatch-XXXXXX`
