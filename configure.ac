@@ -47,6 +47,12 @@ then
 	AC_ERROR([Some type of tar is required.])
 fi
 
+AC_PATH_PROG([BSDIFF], [bsdiff], [])
+if test x"$BSDIFF" = x
+then
+	AC_ERROR([bsdiff is required.])
+fi
+
 AC_PATH_PROG([BSPATCH], [bspatch], [])
 if test x"$BSPATCH" = x
 then
