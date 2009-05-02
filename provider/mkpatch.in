@@ -47,6 +47,7 @@ MV="@MV@"
 RM="@RM@"
 MKDIR="@CMD_MKDIR@"
 AWK="@AWK@"
+LYNX="@LYNX@"
 PULLUP_TRACKER_BASE="http://releng.netbsd.org/cgi-bin/req-{}.cgi"
 
 exitcode=0
@@ -155,17 +156,19 @@ fi
 WRKDIR=`mktemp -d /tmp/mkpatch-XXXXXX`
 OUTDIR=`pwd`
 
+"${LYNX}" -dump "${PULLUP_TRACKER}?show=${PULLUP}" |	\
+	sed -e '1,/Modified Files:/d' -e		\
+	'/To generate a diff of this commit/,$d' |	\
+	sed -e'1,3d' > "${WRKDIR}/+COMMENT"
+SHORTCOMMENT=`head -1 "${WRKDIR}/+COMMENT"`
+
 cat << EOT > "${WRKDIR}/+INFO"
 ABI=${OSABI}
 OS_VERSION=${OSFULL}
 MACHINE_ARCH=${OSARCH}
 PATCHTOOLS=0.1
 NAME=${OSFULL}-${PULLUP}
-COMMENT=Dummy text for pullup ${PULLUP}
-EOT
-
-cat << EOT > "${WRKDIR}/+COMMENT"
-Dummy text for pullup ${PULLUP}
+COMMENT=${SHORTCOMMENT}
 EOT
 
 (while read file

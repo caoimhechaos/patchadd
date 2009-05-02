@@ -35,6 +35,8 @@ else
 fi
 AC_SUBST(FETCH)
 
+AC_PATH_PROG([LYNX], [lynx], [])
+
 AC_PATH_PROG([OPENSSL], [openssl], [])
 if test x"$OPENSSL" = x
 then
