@@ -104,5 +104,5 @@ AC_CHECK_HEADERS([limits.h stdlib.h unistd.h fetch.h db4/db4.h db4/db.h db4.h db
 # Checks for library functions.
 AC_CHECK_FUNCS([getcwd uname])
 
-AC_CONFIG_FILES([Makefile patch_add patch_delete patch_info])
+AC_CONFIG_FILES([Makefile provider/Makefile provider/mkpatch patch_add patch_delete patch_info])
 AC_OUTPUT
